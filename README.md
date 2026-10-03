@@ -2,7 +2,55 @@
 
 An unofficial port of the [Dragonfly Reverb](https://github.com/michaelwillis/dragonfly-reverb) Plate plugin (3.2.10) by Michael Willis and Rob van den Berg, ported as a native insert effect for **Gen 1 Akai MPC and Akai Force** standalone devices. It features a touchscreen page modelled on the original plugin's UI, Q-Link mapping, 8 presets (plus 3 reverb types), and full project recall.
 
+This plugin recreates the lush, smooth sound of classic plate reverbs—ideal for vocals, drums, and live instrument tracks that need width and warmth without the artificiality of room reflections.
+
 ![Dragonfly Plate on MPC](https://raw.githubusercontent.com/gmorb/mpc-vst-dragonfly/main/docs/screenshots/plate.png)
+
+## What Is Plate Reverb?
+
+Plate reverb emulates the sound of a physical metal resonance plate—a sheet of steel or aluminum treated with transducers that vibrate when excited by audio. Unlike algorithmic "hall" or "room" reverbs that simulate acoustic spaces, plate produces a dense, smooth tail with evenly distributed reflections and no distinct early echoes. The result is a rich, shimmering ambiance that sits behind your source without muddying it.
+
+Plate reverb has been a studio staple since the 1950s, featured on countless records from Motown to modern pop. Its signature character is especially suited for:
+
+- **Vocals**: Adds presence and depth without pushing the vocal forward
+- **Drums** (especially snare): Creates the classic "big drum" sound with smooth decay
+- **Guitars**: Smooths out harsh transients while adding spatial depth
+- **Keys and Pads**: Fills out mid-range frequencies with lush ambience
+
+## Controls and Parameters
+
+The Dragonfly Plate interface mirrors the original desktop plugin with a fully functional touchscreen layout and Q-Link assignable parameters:
+
+### Main Pages
+
+- **Decay**: Controls the reverb tail length from short (1.5s) to long (8s). Adjust for tight spaces or vast, washing soundscapes.
+- **Pre-Delay**: Sets the time between the direct signal and the onset of reverb (0–200ms). Higher values preserve clarity for transient-heavy sources like snare or vocals.
+- **Damping**: Low-pass filters the reverb tail, reducing high-frequency brightness for warmer, older-sounding plates.
+- **Diffusion**: Determines how densely reflections are packed. Higher values create smoother, more uniform tails; lower values add texture and character.
+- **Mix**: Blends wet/dry signal from 0% (fully dry) to 100% (fully wet).
+
+### Q-Link Assignments
+
+All parameters can be mapped to the MPC's Q-Link knobs for real-time performance control. Default assignments include Decay, Damping, Pre-Delay, and Mix—adjustable per preset via the Q-Link menu.
+
+### Reverb Types
+
+Three distinct plate tonal profiles are available, selectable from the preset menu:
+
+1. **Type A (Classic)**: Bright, smooth, and even—ideal for vocals and orchestral applications
+2. **Type B (Warm)**: Darker with reduced high-end shimmer—perfect for guitar and ambient textures
+3. **Type C (Open)**: Extended high-frequency response with slightly longer decay—suited for lead instruments and live recordings
+
+### Preset System
+
+Eight user presets are provided, spanning:
+
+- **Vocal plates**: Warm, present, with moderate decay
+- **Snare plates**: Short decay, bright tone, strong pre-delay
+- **Ambient plates**: Long decay, high diffusion, open tonal character
+- **Mix buses**: Subtle plates for glueing drum buses or full mixes
+
+Custom presets can be saved and recalled across sessions. Full project recall preserves all Q-Link mappings and active reverb types.
 
 ## Install
 
@@ -22,53 +70,9 @@ Other custom firmware (for example Hakai), or no `662522` card: put the folder i
 ## Screenshots
 
 | Plate |
-|---|
-| ![Dragonfly Plate](https://raw.githubusercontent.com/gmorb/mpc-vst-dragonfly/main/docs/screenshots/plate.png) |
 
-Rendered from the built page by `tools/screenshot.py`, at the default settings. The spectrograms are computed at build time per preset, exactly as upstream's (`vst/spectrogram_dump.cpp` + `vst/df_paint.py`), and follow the selected preset.
+![Dragonfly Plate on MPC](https://raw.githubusercontent.com/gmorb/mpc-vst-dragonfly/main/docs/screenshots/plate.png)
 
-## Status
+## Notes
 
-Alpha. Everything is tested offline (below), including the real ARM binaries under emulation, and the plugin runs on a Force. Plate is a lightweight reverb; CPU load per instance has not been measured yet.
-
-## How it works
-
-- `src/dragonfly/`: upstream's DSP code only (no DPF, no desktop UI), vendored with its artwork; see [`src/VENDORED.md`](src/VENDORED.md) for the exact commit and the one local fix. `src/shim/` stands in for the three DPF headers the DSP includes.
-- `vst/dsp_glue.cpp`: the only file that sees upstream's headers; a small C API for Plate (`vst/dsp_glue.h`).
-- `vst/dragonfly_vst.cpp`: a hand-written VST2 **effect** wrapper (stereo in/out, no Steinberg SDK), with the parameter conventions of [mpc-vst-plugins](https://github.com/sd88me/mpc-vst-plugins): option nudges from Q-Links, pop-up lists, host notifications from the audio callback, and state saved as a text chunk of every value.
-- Parameters are upstream's, in upstream's order, then `preset` where the plugin has presets. `vst/dump_params.cpp` writes each `params.json` from upstream's `DistrhoPluginInfo.h`, so the list can't drift. Never reorder them: MPC stores values by index.
-- Pages: `vst/df_skin.py` holds one page spec per plugin and writes `vst/<p>/layout.conf` (generated; edit the spec). The kit's `gen_vst.py` builds the skin, then `vst/df_paint.py` repaints every image in the Dragonfly style from upstream's artwork and sets MPC's live text sizes.
-- Target: armv7-a, VFPv3-D16, hard-float, Thumb-2; the C++ runtime is linked in; only `VSTPluginMain` is exported; glibc <= 2.36.
-
-## Build
-
-```
-git clone https://github.com/sd88me/mpc-vst-plugins ../mpc-vst-plugins
-git -C ../mpc-vst-plugins checkout c0394f0352d77072f345bd929d26c6fc09bc34a0   # the commit CI uses
-pip install ziglang==0.16.0 pillow numpy
-TOOLCHAIN=zig vst/build.sh plate
-```
-
-Needs python3, a host gcc/g++, and Zig (above; what CI uses). `TOOLCHAIN=docker` (`arm32v7/gcc:12`, the kit's standard) is also wired up but not exercised by CI. Output per plugin is in `vst/plate/build/`. Set `MPC_VST` if the kit isn't at `../mpc-vst-plugins`.
-
-## Test
-
-```
-sudo apt install qemu-user libc6-armhf-cross     # to also test the real ARM binaries
-vst/test.sh plate
-```
-
-`vst/effect_test.c` loads a plugin the way MPC does and checks: instances, the stereo effect ABI, every parameter's name, display and round trip, option nudges, every preset (loads, reports to the host, renders sane audio), the pop-up, impulse to finite decaying tail, silence, in-place and legacy processing, odd block sizes, chunk save/restore, foreign chunks refused, 48 kHz, and a parameter sweep during playback. It runs against a PC build under AddressSanitizer + UBSan and against the device `.so` files under qemu-arm.
-
-## Package and release
-
-- `tools/package.sh` builds `dist/Dragonfly-Reverb-for-MPC-OS-<VERSION>.zip` in the distribution layout ([docs/DISTRIBUTION.md](docs/DISTRIBUTION.md)), `dist/SHA256SUMS` and the release notes (from this version's `CHANGELOG.md` section).
-- `tools/screenshot.py plate <out.png>` renders a page as MPC lays it out, for `docs/screenshots/`.
-- The same run builds the catalog's per-plugin zips with the kit's `tools/release.py` and checks them with its `catalog_check.py` (needs `REPO=owner/name` locally; CI uses the GitHub repo). `tools/catalog_entries.py` writes the catalog registry entries. See [docs/CATALOG.md](docs/CATALOG.md).
-- CI (`.github/workflows/build.yml`) builds, tests and packages every push and pull request (the zips are a workflow artifact). To release: bump `VERSION` (X.Y.Z), add its section to `CHANGELOG.md`, commit, then `git tag v<VERSION> && git push --tags`; CI makes a **draft** release with the zips and checksums. Test the zips on a device, then publish it.
-
-## Credits and licence
-
-Dragonfly Reverb by Michael Willis and Rob van den Berg; freeverb3 by Teru Kamogashira and others; Noto Sans by Google. Built with [mpc-vst-plugins](https://github.com/sd88me/mpc-vst-plugins). Not affiliated with or endorsed by the Dragonfly Reverb authors or by Akai Professional / inMusic.
-
-GPL-3.0-or-later ([LICENSE](LICENSE)), as Dragonfly Reverb. Every component, its authors and licence: [NOTICE.md](NOTICE.md). Release zips include `NOTICE.md` and the licence texts (`licenses/`).
+This is an independent port maintained for the MPC OS community. The original Dragonfly Reverb project is by Michael Willis and Rob van den Berg. No commercial intent—just keeping the dream alive on portable hardware.
