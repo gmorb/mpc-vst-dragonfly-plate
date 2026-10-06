@@ -1,10 +1,10 @@
+![Dragonfly Plate on MPC](https://raw.githubusercontent.com/gmorb/mpc-vst-dragonfly/main/docs/screenshots/plate.png)
+
 # Dragonfly Plate Reverb for MPC OS
 
 An unofficial port of the [Dragonfly Reverb](https://github.com/michaelwillis/dragonfly-reverb) Plate plugin (3.2.10) by Michael Willis and Rob van den Berg, ported as a native insert effect for **Gen 1 Akai MPC and Akai Force** standalone devices. It features a touchscreen page modelled on the original plugin's UI, Q-Link mapping, 8 presets (plus 3 reverb types), and full project recall.
 
 This plugin recreates the lush, smooth sound of classic plate reverbs—ideal for vocals, drums, and live instrument tracks that need width and warmth without the artificiality of room reflections.
-
-![Dragonfly Plate on MPC](https://raw.githubusercontent.com/gmorb/mpc-vst-dragonfly/main/docs/screenshots/plate.png)
 
 ## What Is Plate Reverb?
 
