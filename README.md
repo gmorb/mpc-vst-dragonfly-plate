@@ -1,4 +1,4 @@
-![Dragonfly Plate on MPC](https://raw.githubusercontent.com/gmorb/mpc-vst-dragonfly/main/docs/screenshots/plate.png)
+![Dragonfly Plate on MPC](https://raw.githubusercontent.com/gmorb/mpc-vst-dragonfly-plate/main/docs/banners/plate.png)
 
 # Dragonfly Plate Reverb for MPC OS
 
@@ -71,7 +71,7 @@ Other custom firmware (for example Hakai), or no `662522` card: put the folder i
 
 | Plate |
 
-![Dragonfly Plate on MPC](https://raw.githubusercontent.com/gmorb/mpc-vst-dragonfly/main/docs/screenshots/plate.png)
+![Dragonfly Plate on MPC](https://raw.githubusercontent.com/gmorb/mpc-vst-dragonfly-plate/main/docs/banners/plate.png)
 
 ## Notes
 
